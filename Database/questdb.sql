@@ -5,20 +5,17 @@ DROP TABLE IF EXISTS Team;
 
 --Create table schema
 CREATE TABLE Team (
-	ID integer PRIMARY KEY,
-	TeamName varchar(30),
-	Score integer
+	TeamName varchar(30) PRIMARY KEY
 	);
 	
 CREATE TABLE Location (
 	ID integer PRIMARY KEY,
-	LocationName varchar(50),
-	Score integer
+	LocationName varchar(50)
 	);
 	
 CREATE TABLE Game (
 	LocationID integer REFERENCES Location(ID),
-	TeamID integer REFERENCES Team(ID)
+	TeamID varchar(30) REFERENCES Team(ID)
 	);
 	
 --Grant SELECT access to the public - Maybe won't use this for the app?
@@ -27,12 +24,12 @@ GRANT SELECT ON Location TO PUBLIC;
 GRANT SELECT ON Game TO PUBLIC;
 
 --Sample data
-INSERT INTO Team VALUES (1, 'A', 50);
-INSERT INTO Team VALUES (2, 'B', 20);
+INSERT INTO Team VALUES ('A');
+INSERT INTO Team VALUES ('B');
 
-INSERT INTO Location VALUES (1, 'DV atrium window', 30);
-INSERT INTO Location VALUES (2, 'VanderLinden office', 20);
+INSERT INTO Location VALUES (1, 'DV atrium window');
+INSERT INTO Location VALUES (2, 'VanderLinden office');
 
-INSERT INTO Game VALUES (1, 1);
-INSERT INTO Game VALUES (1, 2);
-INSERT INTO Game VALUES (2, 2);
+INSERT INTO Game VALUES (1, 'A');
+INSERT INTO Game VALUES (1, 'B');
+INSERT INTO Game VALUES (2, 'A');
