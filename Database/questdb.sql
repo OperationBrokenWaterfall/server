@@ -15,7 +15,7 @@ CREATE TABLE Location (
 	
 CREATE TABLE Game (
 	LocationID integer REFERENCES Location(ID),
-	TeamID varchar(30) REFERENCES Team(ID)
+	TeamName varchar(30) REFERENCES Team(TeamName)
 	);
 	
 --Grant SELECT access to the public - Maybe won't use this for the app?
