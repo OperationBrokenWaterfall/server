@@ -66,7 +66,7 @@ public class TeamResource {
         try {
             connection = DriverManager.getConnection(System.getProperty("cloudsql"));
             statement = connection.createStatement();
-            resultSet = selectTeam(statement);
+            resultSet = selectGame(statement);
             while (resultSet.next()) {
                 Team p = new Team(
                         resultSet.getString(1)
@@ -83,15 +83,49 @@ public class TeamResource {
         return result;
     }
 
+
+    @ApiMethod(path="player/{id}", httpMethod=PUT)
+    public  List<Team> putTeams() throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
+            statement = connection.createStatement();
+            match.setID(id);
+            resultSet = selectMatch(id, statement);
+            if (resultSet.next()) {
+                updateMatch(match, statement);
+            } else {
+                insertMatch(match, statement);
+            }
+        } catch (SQLException e) {
+            throw (e);
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return match;
+    }
+    }
+
     /** SQL Utility Functions *********************************************/
 
     /*
      * This function gets the player with the given id using the given JDBC statement.
      */
-    private ResultSet selectTeam(Statement statement) throws SQLException {
+    private ResultSet selectGame(Statement statement) throws SQLException {
         return statement.executeQuery(
-                "SELECT * FROM Team"
+                "SELECT * FROM Game"
         );
     }
+
 
 }

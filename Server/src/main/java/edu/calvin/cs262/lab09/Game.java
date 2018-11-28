@@ -6,21 +6,24 @@ package edu.calvin.cs262.lab09;
  * the traditional (non-object-oriented) Monopoly database.
  *
  */
-public class Team {
+public class Game {
 
     private String name;
+    private String location;
 
 
-    public Team() {
+    public Game() {
         // The JSON marshaller used by Endpoints requires this default constructor.
     }
-    public Team(String name) {
+    public Game(String name) {
         this.name = name;
+        this.location = location;
     }
 
     public String getName() {
         return this.name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
