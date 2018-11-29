@@ -11,3 +11,13 @@ SELECT DISTINCT TeamName FROM Game;
 --3) Counts number of teams for display in the leaderboard
 
 SELECT COUNT(DISTINCT TeamName) FROM Game;
+
+--4) Inserts the user-entered team name.
+
+INSERT INTO Game (TeamName) VALUES ('team a');
+
+--5) Inserts the team name and location id into the database
+--   when the user scans a qr code. The qr code will be based
+--   on a random alphanumeric string.
+
+INSERT INTO Game (LocationID, TeamName) VALUES ('NI39DU3O8E', 'team a');
