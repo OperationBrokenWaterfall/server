@@ -24,7 +24,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
  * You should configure the name and namespace appropriately.
  */
 @Api(
-    name = "monopoly",
+    name = "Game",
     version = "v1",
     namespace =
     @ApiNamespace(
@@ -44,8 +44,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
 )
 
 /**
- * This class implements a RESTful service for the player table of the monopoly database.
- * Only the player relation is supported, not the game or playergame relations.
+ * This class implements a RESTful service for the player table of the Game database.
  */
 public class TeamResource {
 
@@ -57,19 +56,21 @@ public class TeamResource {
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
      * @throws SQLException
      */
-    @ApiMethod(path="teams", httpMethod=GET)
-    public List<Team> getTeams() throws SQLException {
+    @ApiMethod(path="Game", httpMethod=GET)
+    public List<Game> getGame() throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
-        List<Team> result = new ArrayList<Team>();
+        List<Game> result = new ArrayList<Game>();
         try {
             connection = DriverManager.getConnection(System.getProperty("cloudsql"));
             statement = connection.createStatement();
             resultSet = selectGame(statement);
             while (resultSet.next()) {
-                Team p = new Team(
-                        resultSet.getString(1)
+                Game p = new Game(
+                        Integer.parseInt(resultSet.getString(1)
+                                resultSet.getString(2),
+                                resultSet.getString(3)
                 );
                 result.add(p);
             }
@@ -84,41 +85,10 @@ public class TeamResource {
     }
 
 
-    @ApiMethod(path="player/{id}", httpMethod=PUT)
-    public  List<Team> putTeams() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
-            statement = connection.createStatement();
-            match.setID(id);
-            resultSet = selectMatch(id, statement);
-            if (resultSet.next()) {
-                updateMatch(match, statement);
-            } else {
-                insertMatch(match, statement);
-            }
-        } catch (SQLException e) {
-            throw (e);
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (statement != null) {
-                statement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-        return match;
-    }
-    }
+    /** SQL Utility Functions ********************************************
+     */
 
-    /** SQL Utility Functions *********************************************/
-
-    /*
+    /**
      * This function gets the player with the given id using the given JDBC statement.
      */
     private ResultSet selectGame(Statement statement) throws SQLException {
@@ -127,5 +97,26 @@ public class TeamResource {
         );
     }
 
+    /*
+     * This function deletes the sport with the given id using the given JDBC statement.
+     */
+    private void deleteGame(int id, Statement statement) throws SQLException {
+        statement.executeUpdate(
+                String.format("DELETE FROM Sport WHERE id=%d", id)
+        );
+    }
 
+
+
+    /**
+     * This function returns a value literal suitable for an SQL INSERT/UPDATE command.
+     * If the value is NULL, it returns an unquoted NULL, otherwise it returns the quoted value.
+     */
+    private String getValueStringOrNull(String value) {
+        if (value == null) {
+            return "NULL";
+        } else {
+            return "'" + value + "'";
+        }
+    }
 }
