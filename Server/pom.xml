@@ -19,11 +19,11 @@
     <version>1.0-SNAPSHOT</version>
 
     <groupId>edu.calvin.cs262.lab09</groupId>
-    <artifactId>monopoly</artifactId>
+    <artifactId>questapp</artifactId>
 
     <properties>
 
-        <INSTANCE_CONNECTION_NAME>cs262-teamb-fall2019:us-east4:calvincs262-fall2018-teamb-db</INSTANCE_CONNECTION_NAME>
+        <INSTANCE_CONNECTION_NAME>cs262-teamb-fall2018:us-east4:cs262-questapp</INSTANCE_CONNECTION_NAME>
         <user>postgres</user>
         <password>Quest</password>
         <database>postgres</database>
@@ -36,7 +36,7 @@
         <endpoints.framework.version>2.0.14</endpoints.framework.version>
         <endpoints.management.version>1.0.4</endpoints.management.version>
 
-        <endpoints.project.id>cs262-teamb-fall2019</endpoints.project.id>
+        <endpoints.project.id>cs262-teamb-fall2018</endpoints.project.id>
     </properties>
 
     <dependencies>

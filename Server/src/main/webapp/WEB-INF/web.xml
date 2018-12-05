@@ -26,7 +26,7 @@
         <init-param>
             <param-name>services</param-name>
             <param-value>
-                edu.calvin.cs262.lab09.TeamResource
+                edu.calvin.cs262.lab09.GameResource
             </param-value>
         </init-param>
     </servlet>
