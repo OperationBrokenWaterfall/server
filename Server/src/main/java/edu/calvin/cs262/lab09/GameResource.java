@@ -24,7 +24,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
  * You should configure the name and namespace appropriately.
  */
 @Api(
-    name = "monopoly",
+    name = "questapp",
     version = "v1",
     namespace =
     @ApiNamespace(
@@ -35,7 +35,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
     issuers = {
         @ApiIssuer(
             name = "firebase",
-            issuer = "https://securetoken.google.com/YOUR-PROJECT-ID",
+            issuer = "https://securetoken.google.com/cs262-teamb-fall2018",
             jwksUri =
                 "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system"
                     + ".gserviceaccount.com"
@@ -47,7 +47,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
  * This class implements a RESTful service for the player table of the monopoly database.
  * Only the player relation is supported, not the game or playergame relations.
  */
-public class TeamResource {
+public class GameResource {
 
     /**
      * GET
@@ -57,18 +57,18 @@ public class TeamResource {
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
      * @throws SQLException
      */
-    @ApiMethod(path="teams", httpMethod=GET)
-    public List<Team> getTeams() throws SQLException {
+    @ApiMethod(path="game", httpMethod=GET)
+    public List<Game> getGame() throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
-        List<Team> result = new ArrayList<Team>();
+        List<Game> result = new ArrayList<Game>();
         try {
             connection = DriverManager.getConnection(System.getProperty("cloudsql"));
             statement = connection.createStatement();
             resultSet = selectGame(statement);
             while (resultSet.next()) {
-                Team p = new Team(
+                Game p = new Game(
                         resultSet.getString(1)
                 );
                 result.add(p);
@@ -83,38 +83,6 @@ public class TeamResource {
         return result;
     }
 
-
-    @ApiMethod(path="player/{id}", httpMethod=PUT)
-    public  List<Team> putTeams() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
-            statement = connection.createStatement();
-            match.setID(id);
-            resultSet = selectMatch(id, statement);
-            if (resultSet.next()) {
-                updateMatch(match, statement);
-            } else {
-                insertMatch(match, statement);
-            }
-        } catch (SQLException e) {
-            throw (e);
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (statement != null) {
-                statement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-        return match;
-    }
-    }
 
     /** SQL Utility Functions *********************************************/
 
