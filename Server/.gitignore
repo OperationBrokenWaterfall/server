@@ -1,7 +1,7 @@
 openapi.json
 swagger.json
 
-idea/
+.idea/
 
 # Packages
 dist
