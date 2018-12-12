@@ -24,7 +24,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
  * You should configure the name and namespace appropriately.
  */
 @Api(
-    name = "Game",
+    name = "questapp",
     version = "v1",
     namespace =
     @ApiNamespace(
@@ -35,7 +35,7 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
     issuers = {
         @ApiIssuer(
             name = "firebase",
-            issuer = "https://securetoken.google.com/YOUR-PROJECT-ID",
+            issuer = "https://securetoken.google.com/cs262-teamb-fall2018",
             jwksUri =
                 "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system"
                     + ".gserviceaccount.com"
@@ -44,9 +44,10 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
 )
 
 /**
- * This class implements a RESTful service for the player table of the Game database.
+ * This class implements a RESTful service for the player table of the monopoly database.
+ * Only the player relation is supported, not the game or playergame relations.
  */
-public class TeamResource {
+public class GameResource {
 
     /**
      * GET
@@ -56,7 +57,7 @@ public class TeamResource {
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
      * @throws SQLException
      */
-    @ApiMethod(path="Game", httpMethod=GET)
+    @ApiMethod(path="game", httpMethod=GET)
     public List<Game> getGame() throws SQLException {
         Connection connection = null;
         Statement statement = null;
@@ -68,9 +69,45 @@ public class TeamResource {
             resultSet = selectGame(statement);
             while (resultSet.next()) {
                 Game p = new Game(
-                        Integer.parseInt(resultSet.getString(1)
-                                resultSet.getString(2),
-                                resultSet.getString(3)
+                        resultSet.getInt(1),
+                        resultSet.getString(2),
+                        resultSet.getString(3)
+                );
+                result.add(p);
+            }
+        } catch (SQLException e) {
+            throw(e);
+        } finally {
+            resultSet.close();
+            statement.close();
+            connection.close();
+        }
+        return result;
+    }
+
+    /**
+     * GET
+     * This method gets the full list of players from the Team table. It uses JDBC to
+     * establish a DB connection, construct/send a simple SQL query, and process the results.
+     *
+     * @return JSON-formatted list of player records (based on a root JSON tag of "items")
+     * @throws SQLException
+     */
+    @ApiMethod(path="game", httpMethod=GET)
+    public List<Game> getTeamname() throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        List<Game> result = new ArrayList<Game>();
+        try {
+            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
+            statement = connection.createStatement();
+            resultSet = selectTeamname(name, statement);
+            while (resultSet.next()) {
+                Game p = new Game(
+                        resultSet.getInt(1),
+                        resultSet.getString(2),
+                        resultSet.getString(3)
                 );
                 result.add(p);
             }
@@ -85,10 +122,44 @@ public class TeamResource {
     }
 
 
-    /** SQL Utility Functions ********************************************
-     */
-
     /**
+     * @param question a JSON representation of the question to be created
+     * @return new question entity with a system-generated ID
+     * @throws SQLException
+     */
+    @ApiMethod(path="question", httpMethod=POST)
+    public List<Game> postGame(Statement statement) throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT MAX(ID) FROM GAME");
+            if (resultSet.next()) {
+                question.setId(resultSet.getInt(1) + 1);
+                question.setDownloads(0);
+            } else {
+                throw new RuntimeException("failed to find unique ID...");
+            }
+            insertGame(Statement, statement);
+        } catch (SQLException e) {
+            throw (e);
+        } finally {
+            if (resultSet != null) { resultSet.close(); }
+            if (statement != null) { statement.close(); }
+            if (connection != null) { connection.close(); }
+        }
+        // return question;
+        return question;
+    }
+
+
+
+
+    /** SQL Utility Functions *********************************************/
+
+    /*
      * This function gets the player with the given id using the given JDBC statement.
      */
     private ResultSet selectGame(Statement statement) throws SQLException {
@@ -98,25 +169,23 @@ public class TeamResource {
     }
 
     /*
-     * This function deletes the sport with the given id using the given JDBC statement.
+     * This function inserts the given match using the given JDBC statement.
      */
-    private void deleteGame(int id, Statement statement) throws SQLException {
+    private void insertGame(Statement statement) throws SQLException {
         statement.executeUpdate(
-                String.format("DELETE FROM Sport WHERE id=%d", id)
+                String.format("INSERT INTO Game (LocationID, TeamName) VALUES ('%d', '%d', '%s')",
+                        game.getID(),
+                        game.getLocationID,
+                        game.getName
+                )
+        );
+    }
+
+    private ResultSet selectTeamname(String name, Statement statement) throws SQLException {
+        return statement.executeQuery(
+                String.format("SELECT * FROM Game WHERE Game.name = '%s'", name)
         );
     }
 
 
-
-    /**
-     * This function returns a value literal suitable for an SQL INSERT/UPDATE command.
-     * If the value is NULL, it returns an unquoted NULL, otherwise it returns the quoted value.
-     */
-    private String getValueStringOrNull(String value) {
-        if (value == null) {
-            return "NULL";
-        } else {
-            return "'" + value + "'";
-        }
-    }
 }
