@@ -69,9 +69,11 @@ public class GameResource {
             resultSet = selectGame(statement);
             while (resultSet.next()) {
                 Game p = new Game(
+
                         resultSet.getInt(1),
                         resultSet.getString(2),
                         resultSet.getString(3)
+
                 );
                 result.add(p);
             }
@@ -122,6 +124,7 @@ public class GameResource {
     }
 
 
+
     /**
      * @param question a JSON representation of the question to be created
      * @return new question entity with a system-generated ID
@@ -153,9 +156,6 @@ public class GameResource {
         // return question;
         return question;
     }
-
-
-
 
     /** SQL Utility Functions *********************************************/
 
