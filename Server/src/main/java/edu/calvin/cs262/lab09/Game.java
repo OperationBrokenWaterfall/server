@@ -10,14 +10,13 @@ public class Game {
 
     private String name;
     private String location;
-
     private int id;
 
     public Game() {
         // The JSON marshaller used by Endpoints requires this default constructor.
     }
 
-    public Game(int id, String name, String location,) {
+    public Game(int id, String name, String location) {
         this.name = name;
         this.location = location;
         this.id = id;
@@ -44,19 +43,6 @@ public class Game {
     }
 
     public void setLocation(String location) {
-        this.name = location;
-        return location;
-    }
-
-    public void setLocation(String location) {
         this.location = location;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 }

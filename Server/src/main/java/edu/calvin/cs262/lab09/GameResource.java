@@ -95,8 +95,8 @@ public class GameResource {
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
      * @throws SQLException
      */
-    @ApiMethod(path="game", httpMethod=GET)
-    public List<Game> getTeamname() throws SQLException {
+    @ApiMethod(path="Teamname", httpMethod=GET)
+    public List<Game> getTeamname(Game game) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -104,7 +104,7 @@ public class GameResource {
         try {
             connection = DriverManager.getConnection(System.getProperty("cloudsql"));
             statement = connection.createStatement();
-            resultSet = selectTeamname(name, statement);
+            resultSet = selectTeamname(game.getName(), statement);
             while (resultSet.next()) {
                 Game p = new Game(
                         resultSet.getInt(1),
@@ -131,7 +131,7 @@ public class GameResource {
      * @throws SQLException
      */
     @ApiMethod(path="gamePost", httpMethod=POST)
-    public List<Game> postGame(Statement statement) throws SQLException {
+    public Game postGame(Game game) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -140,12 +140,11 @@ public class GameResource {
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT MAX(ID) FROM GAME");
             if (resultSet.next()) {
-                question.setId(resultSet.getInt(1) + 1);
-                question.setDownloads(0);
+                game.setId(resultSet.getInt(1) + 1);
             } else {
                 throw new RuntimeException("failed to find unique ID...");
             }
-            insertGame(statement);
+            insertGame(game, statement);
         } catch (SQLException e) {
             throw (e);
         } finally {
@@ -153,8 +152,7 @@ public class GameResource {
             if (statement != null) { statement.close(); }
             if (connection != null) { connection.close(); }
         }
-        // return question;
-        return question;
+        return game;
     }
 
     /** SQL Utility Functions *********************************************/
@@ -171,12 +169,12 @@ public class GameResource {
     /*
      * This function inserts the given match using the given JDBC statement.
      */
-    private void insertGame(Statement statement) throws SQLException {
+    private void insertGame(Game game, Statement statement) throws SQLException {
         statement.executeUpdate(
                 String.format("INSERT INTO Game (LocationID, TeamName) VALUES ('%d', '%d', '%s')",
-                        game.getID(),
-                        game.getLocationID,
-                        game.getName
+                        game.getId(),
+                        game.getLocation(),
+                        game.getName()
                 )
         );
     }
@@ -186,6 +184,4 @@ public class GameResource {
                 String.format("SELECT * FROM Game WHERE Game.name = '%s'", name)
         );
     }
-
-
 }
