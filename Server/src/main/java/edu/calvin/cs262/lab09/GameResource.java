@@ -95,8 +95,8 @@ public class GameResource {
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
      * @throws SQLException
      */
-    @ApiMethod(path="game", httpMethod=GET)
-    public List<Game> getTeamname() throws SQLException {
+    @ApiMethod(path="Teamname", httpMethod=GET)
+    public List<Game> getTeamname(Game game) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -104,7 +104,7 @@ public class GameResource {
         try {
             connection = DriverManager.getConnection(System.getProperty("cloudsql"));
             statement = connection.createStatement();
-            resultSet = selectTeamname(name, statement);
+            resultSet = selectTeamname(game.getName(), statement);
             while (resultSet.next()) {
                 Game p = new Game(
                         resultSet.getInt(1),
@@ -123,15 +123,47 @@ public class GameResource {
         return result;
     }
 
+    /**
+     * PUT
+     *
+     * @param id     the ID for the question, assumed to be unique
+     * @param question a JSON representation of the question; The id parameter overrides any id specified here.
+     * @return new/updated question entity
+     * @throws SQLException
+     */
+    @ApiMethod(path="game/{id}", httpMethod=PUT)
+    public Game putGame(Game game, @Named("id") int id) throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
+            statement = connection.createStatement();
+            resultSet = selectGame(statement);
 
+            if (resultSet.next()) {
+                updateGame(game, statement);
+            } else {
+                insertGame(game, statement);
+            }
+        } catch (SQLException e) {
+            throw (e);
+        } finally {
+            if (resultSet != null) { resultSet.close(); }
+            if (statement != null) { statement.close(); }
+            if (connection != null) { connection.close(); }
+        }
+        return game;
+    }
 
     /**
      * @param question a JSON representation of the question to be created
      * @return new question entity with a system-generated ID
      * @throws SQLException
      */
-    @ApiMethod(path="question", httpMethod=POST)
-    public List<Game> postGame(Statement statement) throws SQLException {
+    @ApiMethod(path="gamePost", httpMethod=POST)
+    public Game postGame(Game game) throws SQLException {
+        System.out.println("Game: " + game.getName() + " " + game.getLocation());
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -140,12 +172,12 @@ public class GameResource {
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT MAX(ID) FROM GAME");
             if (resultSet.next()) {
-                question.setId(resultSet.getInt(1) + 1);
-                question.setDownloads(0);
+                game.setId(resultSet.getInt(1) + 1);
             } else {
                 throw new RuntimeException("failed to find unique ID...");
             }
-            insertGame(Statement, statement);
+            insertGame(game, statement);
+
         } catch (SQLException e) {
             throw (e);
         } finally {
@@ -153,9 +185,35 @@ public class GameResource {
             if (statement != null) { statement.close(); }
             if (connection != null) { connection.close(); }
         }
-        // return question;
-        return question;
+        return game;
     }
+
+    /**
+     * DELETE
+     * This method deletes the instance of Person with a given ID, if it exists.
+     * If the question with the given ID doesn't exist, SQL won't delete anything.
+     * This makes DELETE idempotent.
+     *
+     * @param id     the ID for the question, assumed to be unique
+     * @return the deleted question, if any
+     * @throws SQLException
+     */
+    @ApiMethod(path="game/{id}", httpMethod=DELETE)
+    public void deleteGame(@Named("id") int id) throws SQLException {
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = DriverManager.getConnection(System.getProperty("cloudsql"));
+            statement = connection.createStatement();
+            deleteGameItem(id, statement);
+        } catch (SQLException e) {
+            throw (e);
+        } finally {
+            if (statement != null) { statement.close(); }
+            if (connection != null) { connection.close(); }
+        }
+    }
+
 
     /** SQL Utility Functions *********************************************/
 
@@ -171,12 +229,20 @@ public class GameResource {
     /*
      * This function inserts the given match using the given JDBC statement.
      */
-    private void insertGame(Statement statement) throws SQLException {
+    private void insertGame(Game game, Statement statement) throws SQLException {
         statement.executeUpdate(
-                String.format("INSERT INTO Game (LocationID, TeamName) VALUES ('%d', '%d', '%s')",
-                        game.getID(),
-                        game.getLocationID,
-                        game.getName
+                String.format("INSERT INTO Game (LocationID, TeamName) VALUES ('%d', '%s')",
+                        game.getLocation(),
+                        game.getName()
+                )
+        );
+    }
+
+    private void updateGame(Game game, Statement statement) throws SQLException {
+        statement.executeUpdate(
+                String.format("UPDATE Game SET TeamnName=%d WHERE id=%d",
+                        game.getName(),
+                        game.getId()
                 )
         );
     }
@@ -187,5 +253,11 @@ public class GameResource {
         );
     }
 
-
+    private void deleteGameItem(int id, Statement statement) throws SQLException {
+        statement.executeUpdate(
+                String.format("DELETE FROM Game WHERE id=%d", id)
+        );
+    }
 }
+
+
