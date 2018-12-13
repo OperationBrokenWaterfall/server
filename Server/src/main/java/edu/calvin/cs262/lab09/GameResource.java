@@ -130,7 +130,7 @@ public class GameResource {
      * @return new question entity with a system-generated ID
      * @throws SQLException
      */
-    @ApiMethod(path="question", httpMethod=POST)
+    @ApiMethod(path="gamePost", httpMethod=POST)
     public List<Game> postGame(Statement statement) throws SQLException {
         Connection connection = null;
         Statement statement = null;
@@ -145,7 +145,7 @@ public class GameResource {
             } else {
                 throw new RuntimeException("failed to find unique ID...");
             }
-            insertGame(Statement, statement);
+            insertGame(statement);
         } catch (SQLException e) {
             throw (e);
         } finally {
