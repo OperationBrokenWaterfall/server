@@ -44,14 +44,14 @@ import static com.google.api.server.spi.config.ApiMethod.HttpMethod.DELETE;
 )
 
 /**
- * This class implements a RESTful service for the player table of the monopoly database.
+ * This class implements a RESTful service for the game table of the Game database.
  * Only the player relation is supported, not the game or playergame relations.
  */
 public class GameResource {
 
     /**
      * GET
-     * This method gets the full list of players from the Team table. It uses JDBC to
+     * This method gets the full list of teams, ids, games from the game table. It uses JDBC to
      * establish a DB connection, construct/send a simple SQL query, and process the results.
      *
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
@@ -89,7 +89,7 @@ public class GameResource {
 
     /**
      * GET
-     * This method gets the full list of players from the Team table. It uses JDBC to
+     * This method gets the full list of teamnames from the game table. It uses JDBC to
      * establish a DB connection, construct/send a simple SQL query, and process the results.
      *
      * @return JSON-formatted list of player records (based on a root JSON tag of "items")
@@ -126,9 +126,9 @@ public class GameResource {
     /**
      * PUT
      *
-     * @param id     the ID for the question, assumed to be unique
-     * @param question a JSON representation of the question; The id parameter overrides any id specified here.
-     * @return new/updated question entity
+     * @param id     the ID for the game, assumed to be unique
+     * @param game a JSON representation of the question; The id parameter overrides any id specified here.
+     * @return new/updated game entity
      * @throws SQLException
      */
     @ApiMethod(path="game/{id}", httpMethod=PUT)
@@ -157,8 +157,8 @@ public class GameResource {
     }
 
     /**
-     * @param question a JSON representation of the question to be created
-     * @return new question entity with a system-generated ID
+     * @param  a JSON representation of the game to be created
+     * @return new game entity with a system-generated ID
      * @throws SQLException
      */
     @ApiMethod(path="gamePost", httpMethod=POST)
@@ -192,7 +192,7 @@ public class GameResource {
 
     /**
      * DELETE
-     * This method deletes the instance of Person with a given ID, if it exists.
+     * This method deletes the instance of Game with a given ID, if it exists.
      * If the question with the given ID doesn't exist, SQL won't delete anything.
      * This makes DELETE idempotent.
      *
@@ -220,7 +220,7 @@ public class GameResource {
     /** SQL Utility Functions *********************************************/
 
     /*
-     * This function gets the player with the given id using the given JDBC statement.
+     * This function gets the game with the given id using the given JDBC statement.
      */
     private ResultSet selectGame(Statement statement) throws SQLException {
         return statement.executeQuery(
@@ -229,7 +229,7 @@ public class GameResource {
     }
 
     /*
-     * This function inserts the given match using the given JDBC statement.
+     * This function inserts the given game using the given JDBC statement.
      */
     private void insertGame(Game game, Statement statement) throws SQLException {
         statement.executeUpdate(
@@ -239,7 +239,9 @@ public class GameResource {
                 )
         );
     }
-
+    /*
+     * This function updates the given game using the JDBC statement
+     */
     private void updateGame(Game game, Statement statement) throws SQLException {
         statement.executeUpdate(
                 String.format("UPDATE Game SET TeamnName=%d WHERE id=%d",
@@ -249,12 +251,18 @@ public class GameResource {
         );
     }
 
+    /*
+     * This function takes a teamname from game given a name using the JDBC statement
+     */
     private ResultSet selectTeamname(String name, Statement statement) throws SQLException {
         return statement.executeQuery(
                 String.format("SELECT * FROM Game WHERE Game.name = '%s'", name)
         );
     }
 
+    /*
+     * This function deletes a game give a certain id using the JDBC statement
+     */
     private void deleteGameItem(int id, Statement statement) throws SQLException {
         statement.executeUpdate(
                 String.format("DELETE FROM Game WHERE id=%d", id)
