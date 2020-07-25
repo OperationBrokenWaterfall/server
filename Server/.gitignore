@@ -2,6 +2,7 @@ openapi.json
 swagger.json
 
 .idea/
+.idea/workspace.xml
 
 # Packages
 dist
